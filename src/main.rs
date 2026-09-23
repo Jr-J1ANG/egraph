@@ -21,14 +21,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     n1 = b
     n2 = c
     n3 = d
-    n4 = n0 * n1
-    n5 = n1 * n2
-    n6 = n2 * n3
-    n7 = n4 * n5
-    n8 = n5 * n6
-    n9 = n7 * n8
-
-    outputs = n9
+    n4 = n0 + n1
+    n5 = n4 * n2
+    n6 = n5 * n3
+    outputs = n6
     "#;
 
     // Temporary local scope for testing RunnerLocal.
