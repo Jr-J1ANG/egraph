@@ -11,15 +11,11 @@ digraph egraph {
   }
   subgraph cluster_3 {
     style=dotted
-    3.0[label = "+"]
-  }
-  subgraph cluster_11 {
-    style=dotted
-    11.0[label = "+"]
+    3.0[label = "d"]
   }
   subgraph cluster_6 {
     style=dotted
-    6.0[label = "+"]
+    6.0[label = "*"]
   }
   subgraph cluster_2 {
     style=dotted
@@ -27,11 +23,11 @@ digraph egraph {
   }
   subgraph cluster_9 {
     style=dotted
-    9.0[label = "+"]
+    9.0[label = "outputs"]
   }
   subgraph cluster_5 {
     style=dotted
-    5.0[label = "*"]
+    5.0[label = "+"]
   }
   subgraph cluster_1 {
     style=dotted
@@ -39,31 +35,21 @@ digraph egraph {
   }
   subgraph cluster_8 {
     style=dotted
-    8.0[label = "outputs"]
+    8.0[label = "+"]
   }
   subgraph cluster_4 {
     style=dotted
     4.0[label = "+"]
-    4.1[label = "+"]
-    4.2[label = "+"]
   }
-  7.0:sw -> 4.0 [lhead = cluster_4, ]
-  7.0:se -> 6.0 [lhead = cluster_6, ]
-  3.0:sw -> 0.0 [lhead = cluster_0, ]
-  3.0:se -> 1.0 [lhead = cluster_1, ]
-  11.0:sw -> 0.0 [lhead = cluster_0, ]
-  11.0:se -> 2.0 [lhead = cluster_2, ]
-  6.0:sw -> 0.0 [lhead = cluster_0, ]
-  6.0:se -> 5.0 [lhead = cluster_5, ]
-  9.0:sw -> 1.0 [lhead = cluster_1, ]
-  9.0:se -> 2.0 [lhead = cluster_2, ]
-  5.0:sw -> 1.0 [lhead = cluster_1, ]
-  5.0:se -> 2.0 [lhead = cluster_2, ]
-  8.0 -> 7.0 [lhead = cluster_7, ]
-  4.0:sw -> 9.0 [lhead = cluster_9, ]
-  4.0:se -> 0.0 [lhead = cluster_0, ]
-  4.1:sw -> 11.0 [lhead = cluster_11, ]
-  4.1:se -> 1.0 [lhead = cluster_1, ]
-  4.2:sw -> 3.0 [lhead = cluster_3, ]
-  4.2:se -> 2.0 [lhead = cluster_2, ]
+  7.0:sw -> 1.0 [lhead = cluster_1, ]
+  7.0:se -> 5.0 [lhead = cluster_5, ]
+  6.0:sw -> 4.0 [lhead = cluster_4, ]
+  6.0:se -> 2.0 [lhead = cluster_2, ]
+  9.0 -> 8.0 [lhead = cluster_8, ]
+  5.0:sw -> 2.0 [lhead = cluster_2, ]
+  5.0:se -> 3.0 [lhead = cluster_3, ]
+  8.0:sw -> 6.0 [lhead = cluster_6, ]
+  8.0:se -> 7.0 [lhead = cluster_7, ]
+  4.0:sw -> 0.0 [lhead = cluster_0, ]
+  4.0:se -> 1.0 [lhead = cluster_1, ]
 }
