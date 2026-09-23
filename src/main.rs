@@ -21,20 +21,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     n1 = b
     n2 = c
     n3 = d
-    n4 = n0 * n1
-    n5 = n1 * n2
-    n6 = n2 * n3
-    n7 = n4 * n5
-    n8 = n5 * n6
-    n9 = n7 * n8
-    outputs = n9
+    n4 = n0 + n1
+    n5 = n4 * n2
+    n6 = n5 * n3
+    outputs = n6
     "#;
 
     // Temporary local scope for testing RunnerLocal.
     // These will later be generated from the raw EGraph.
     let local_scope = vec![
-        Id::from(8),
-        Id::from(9),
+        Id::from(6),
     ];
 
     println!("Input DAG:");
@@ -53,12 +49,58 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("E-classes : {eclass_count}");
     println!("E-nodes   : {enode_count}");
 
-    let mut file = File::create("saturation.dot")?;
+    let mut file = File::create("saturation1.dot")?;
     write!(file, "{}", saturated.egraph.dot())?;
 
-    println!("EGraph DOT written to saturation.dot");
+    println!("EGraph DOT written to saturation1.dot");
 
+    let local_scope = vec![
+        Id::from(5),
+        Id::from(6),         
+    ];
 
+    println!("Local scope: {:?}", local_scope);
+
+    let saturated = saturate_dag_local(program, local_scope)
+        .map_err(|error| std::io::Error::other(
+            format!("Local E-graph saturation failed: {error}")
+        ))?;
+
+    let eclass_count = saturated.egraph.number_of_classes();
+    let enode_count = saturated.egraph.total_size();
+
+    println!("E-classes : {eclass_count}");
+    println!("E-nodes   : {enode_count}");
+
+    let mut file = File::create("saturation2.dot")?;
+    write!(file, "{}", saturated.egraph.dot())?;
+
+    println!("EGraph DOT written to saturation2.dot");
+    
+    let local_scope = vec![
+        Id::from(4),
+        Id::from(5),
+        Id::from(6),         
+    ];
+
+    println!("Local scope: {:?}", local_scope);
+
+    let saturated = saturate_dag_local(program, local_scope)
+        .map_err(|error| std::io::Error::other(
+            format!("Local E-graph saturation failed: {error}")
+        ))?;
+
+    let eclass_count = saturated.egraph.number_of_classes();
+    let enode_count = saturated.egraph.total_size();
+
+    println!("E-classes : {eclass_count}");
+    println!("E-nodes   : {enode_count}");
+
+    let mut file = File::create("saturation3.dot")?;
+    write!(file, "{}", saturated.egraph.dot())?;
+
+    println!("EGraph DOT written to saturation3.dot");
+    
     Ok(())
 }
 
