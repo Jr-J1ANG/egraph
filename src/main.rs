@@ -20,18 +20,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     n0 = a
     n1 = b
     n2 = c
-    n3 = n0 + n1
-    n4 = n3 + n2
-    n5 = n1 * n2
-    n6 = n0 + n5
-    n7 = n4 * n6
+    n3 = d    
+    n4 = n0 + n1
+    n5 = n2 + n3
+    n6 = n4 * n2
+    n7 = n1 * n5
+    n8 = n6 + n7
     
-    outputs = n7
+    outputs = n8
     "#;
 
     // Temporary local scope for testing RunnerLocal.
     // These will later be generated from the raw EGraph.
     let local_scope = vec![
+        Id::from(0),
+        Id::from(2),
+        Id::from(2),
         Id::from(3),
         Id::from(4),
         Id::from(5),
@@ -61,8 +65,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 
     let local_scope = vec![
+        Id::from(0),
+        Id::from(2),
+        Id::from(2),
+        Id::from(3),
+        Id::from(4),
+        Id::from(5),
         Id::from(7),
-        Id::from(8),
     ];
     let saturated = saturate_dag_local(program, local_scope)
     .map_err(|error| std::io::Error::other(
@@ -79,6 +88,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     write!(file, "{}", saturated.egraph.dot())?;
 
     println!("EGraph DOT written to saturation2.dot");
+
+    let saturated = saturate_dag(program)
+    .map_err(|error| std::io::Error::other(
+        format!("Local E-graph saturation failed: {error}")
+    ))?;
+
+    let eclass_count = saturated.egraph.number_of_classes();
+    let enode_count = saturated.egraph.total_size();
+
+    println!("E-classes : {eclass_count}");
+    println!("E-nodes   : {enode_count}");
+
+    let mut file = File::create("saturation3.dot")?;
+    write!(file, "{}", saturated.egraph.dot())?;
+
+    println!("EGraph DOT written to saturation3.dot");
 
     Ok(())
 }
