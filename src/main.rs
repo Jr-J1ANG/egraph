@@ -115,7 +115,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("E-classes : {eclass_count}");
     println!("E-nodes   : {enode_count}");
 
-    let mut file = File::create("saturation3.dot")?;
+    let mut file = File::create("saturation4.dot")?;
     write!(file, "{}", saturated.egraph.dot())?;
 
     println!("EGraph DOT written to saturation4.dot");
