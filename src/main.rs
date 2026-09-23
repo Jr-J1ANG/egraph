@@ -34,7 +34,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // These will later be generated from the raw EGraph.
     let local_scope = vec![
         Id::from(0),
-        Id::from(2),
+        Id::from(1),
         Id::from(2),
         Id::from(3),
         Id::from(4),
@@ -66,7 +66,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let local_scope = vec![
         Id::from(0),
-        Id::from(2),
+        Id::from(1),
         Id::from(2),
         Id::from(3),
         Id::from(4),
