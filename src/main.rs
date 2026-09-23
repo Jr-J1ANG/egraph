@@ -21,17 +21,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     n1 = b
     n2 = c
     n3 = d
-    n4 = n0 + n1
+    n4 = n0 * n1
     n5 = n4 * n2
-    n6 = n5 * n3
-    n7 = n4 * n3
-    outputs = n6
+    n6 = n4 * n3
+    n7 = n5 * n3
+    outputs = n7
     "#;
 
     // Temporary local scope for testing RunnerLocal.
     // These will later be generated from the raw EGraph.
     let local_scope = vec![
-        Id::from(6),
+        Id::from(7),
     ];
 
     println!("Input DAG:");
