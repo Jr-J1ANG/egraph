@@ -34,6 +34,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let local_scope = vec![
         Id::from(3),
         Id::from(4),
+        Id::from(5),
+        Id::from(6),
     ];
 
     println!("Input DAG:");
@@ -59,10 +61,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 
     let local_scope = vec![
-        Id::from(3),
-        Id::from(4),
-        Id::from(5),
-        Id::from(6),
+        Id::from(7),
+        Id::from(8),
     ];
     let saturated = saturate_dag_local(program, local_scope)
     .map_err(|error| std::io::Error::other(
