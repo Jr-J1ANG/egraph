@@ -25,6 +25,10 @@ pub fn rules() -> Vec<Rewrite<FheLang, ()>> {
             "expand-left";
             "(* ?a (+ ?b ?c))" => "(+ (* ?a ?b) (* ?a ?c))"
         ),
+        rewrite!(
+            "expand-right";
+            "(* (+ ?b ?c) ?a)" => "(+ (* ?a ?b) (* ?a ?c))"
+        ),
         // Multiplication reassociation
         rewrite!(
             "assoc-mul-l1";
