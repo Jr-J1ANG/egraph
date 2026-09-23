@@ -2,7 +2,7 @@ use crate::dag_parser::ProgramDag;
 use crate::lang::FheLang;
 use crate::rules::rules;
 
-use egg::{EGraph, Id, RecExpr, Runner};
+use egg::{EGraph, Id, RecExpr, Runner, RunnerLocal};
 use std::time::Duration;
 
 /// Metadata about the original program.
