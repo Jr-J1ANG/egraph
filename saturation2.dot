@@ -1,0 +1,66 @@
+digraph egraph {
+  compound=true
+  clusterrank=local
+  subgraph cluster_0 {
+    style=dotted
+    0.0[label = "a"]
+  }
+  subgraph cluster_7 {
+    style=dotted
+    7.0[label = "+"]
+    7.1[label = "*"]
+  }
+  subgraph cluster_3 {
+    style=dotted
+    3.0[label = "+"]
+  }
+  subgraph cluster_10 {
+    style=dotted
+    10.0[label = "*"]
+  }
+  subgraph cluster_6 {
+    style=dotted
+    6.0[label = "+"]
+  }
+  subgraph cluster_2 {
+    style=dotted
+    2.0[label = "c"]
+  }
+  subgraph cluster_9 {
+    style=dotted
+    9.0[label = "*"]
+  }
+  subgraph cluster_5 {
+    style=dotted
+    5.0[label = "*"]
+  }
+  subgraph cluster_1 {
+    style=dotted
+    1.0[label = "b"]
+  }
+  subgraph cluster_8 {
+    style=dotted
+    8.0[label = "outputs"]
+  }
+  subgraph cluster_4 {
+    style=dotted
+    4.0[label = "+"]
+  }
+  7.0:sw -> 9.0 [lhead = cluster_9, ]
+  7.0:se -> 10.0 [lhead = cluster_10, ]
+  7.1:sw -> 4.0 [lhead = cluster_4, ]
+  7.1:se -> 6.0 [lhead = cluster_6, ]
+  3.0:sw -> 0.0 [lhead = cluster_0, ]
+  3.0:se -> 1.0 [lhead = cluster_1, ]
+  10.0:sw -> 4.0 [lhead = cluster_4, ]
+  10.0:se -> 5.0 [lhead = cluster_5, ]
+  6.0:sw -> 0.0 [lhead = cluster_0, ]
+  6.0:se -> 5.0 [lhead = cluster_5, ]
+  9.0:sw -> 4.0 [lhead = cluster_4, ]
+  9.0:se -> 0.0 [lhead = cluster_0, ]
+  5.0:sw -> 1.0 [lhead = cluster_1, ]
+  5.0:se -> 2.0 [lhead = cluster_2, ]
+  8.0 -> 7.0 [lhead = cluster_7, ]
+  4.0:sw -> 3.0 [lhead = cluster_3, ]
+  4.0:se -> 2.0 [lhead = cluster_2, ]
+}
