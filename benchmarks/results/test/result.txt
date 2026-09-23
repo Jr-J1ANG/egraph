@@ -1,0 +1,18 @@
+Batch optimization results
+Input directory : benchmarks/test
+Output directory: benchmarks/results/test
+Benchmarks      : 1
+
+============================================================
+             Benchmark : test.txt
+             STATUS    : RUNNING
+Original  : MD = 6    MC = 9    MC × MD² = 324
+E-classes : 74
+             E-nodes   : 322
+MD-opt    : MD = 3    MC = 6    MC × MD² = 54
+MC-opt    : MD = 4    MC = 5    MC × MD² = 80
+MCMD-opt  : MD = 3    MC = 6    MC × MD² = 54
+             STATUS    : SUCCEEDED
+
+============================================================
+             Completed: 1 succeeded, 0 failed, 1 total.

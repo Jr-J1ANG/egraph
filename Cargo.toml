@@ -1,0 +1,8 @@
+[package]
+name = "egraph"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+egg = { path = "../egg_local", features = ["lp"] }
+good_lp = { version = "1", default-features = false, features = ["highs", "coin_cbc"] }

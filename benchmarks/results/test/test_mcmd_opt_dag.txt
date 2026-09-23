@@ -1,0 +1,18 @@
+n0 = x
+n1 = n0 * n0
+n2 = n1 * n0
+n3 = c5
+n4 = c6
+n5 = n4 * n0
+n6 = n3 + n5
+n7 = n1 * n6
+n8 = c3
+n9 = n7 + n8
+n10 = n2 * n9
+n11 = c0
+n12 = c1
+n13 = n12 * n0
+n14 = n11 + n13
+n15 = n10 + n14
+
+outputs = n15
