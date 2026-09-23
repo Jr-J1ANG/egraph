@@ -5,57 +5,111 @@ digraph egraph {
     style=dotted
     0.0[label = "a"]
   }
-  subgraph cluster_7 {
+  subgraph cluster_11 {
     style=dotted
-    7.0[label = "*"]
+    11.0[label = "*"]
+    11.1[label = "*"]
   }
   subgraph cluster_3 {
     style=dotted
     3.0[label = "d"]
   }
-  subgraph cluster_10 {
-    style=dotted
-    10.0[label = "outputs"]
-  }
   subgraph cluster_6 {
     style=dotted
     6.0[label = "*"]
   }
-  subgraph cluster_2 {
+  subgraph cluster_17 {
     style=dotted
-    2.0[label = "c"]
+    17.0[label = "*"]
+    17.1[label = "*"]
   }
   subgraph cluster_9 {
     style=dotted
     9.0[label = "*"]
-  }
-  subgraph cluster_5 {
-    style=dotted
-    5.0[label = "*"]
+    9.1[label = "*"]
+    9.2[label = "*"]
+    9.3[label = "*"]
+    9.4[label = "*"]
   }
   subgraph cluster_1 {
     style=dotted
     1.0[label = "b"]
   }
-  subgraph cluster_8 {
-    style=dotted
-    8.0[label = "*"]
-  }
   subgraph cluster_4 {
     style=dotted
     4.0[label = "*"]
   }
+  subgraph cluster_7 {
+    style=dotted
+    7.0[label = "*"]
+  }
+  subgraph cluster_10 {
+    style=dotted
+    10.0[label = "outputs"]
+  }
+  subgraph cluster_21 {
+    style=dotted
+    21.0[label = "*"]
+  }
+  subgraph cluster_2 {
+    style=dotted
+    2.0[label = "c"]
+  }
+  subgraph cluster_13 {
+    style=dotted
+    13.0[label = "*"]
+    13.1[label = "*"]
+    13.2[label = "*"]
+  }
+  subgraph cluster_5 {
+    style=dotted
+    5.0[label = "*"]
+  }
+  subgraph cluster_8 {
+    style=dotted
+    8.0[label = "*"]
+  }
+  subgraph cluster_19 {
+    style=dotted
+    19.0[label = "*"]
+  }
+  11.0:sw -> 5.0 [lhead = cluster_5, ]
+  11.0:se -> 8.0 [lhead = cluster_8, ]
+  11.1:sw -> 6.0 [lhead = cluster_6, ]
+  11.1:se -> 19.0 [lhead = cluster_19, ]
+  6.0:sw -> 2.0 [lhead = cluster_2, ]
+  6.0:se -> 3.0 [lhead = cluster_3, ]
+  17.0:sw -> 19.0 [lhead = cluster_19, ]
+  17.0:se -> 4.0 [lhead = cluster_4, ]
+  17.1:sw -> 7.0 [lhead = cluster_7, ]
+  17.1:se -> 5.0 [lhead = cluster_5, ]
+  9.0:sw -> 11.0 [lhead = cluster_11, ]
+  9.0:se -> 4.0 [lhead = cluster_4, ]
+  9.1:sw -> 13.0 [lhead = cluster_13, ]
+  9.1:se -> 5.0 [lhead = cluster_5, ]
+  9.2:sw -> 6.0 [lhead = cluster_6, ]
+  9.2:se -> 17.0 [lhead = cluster_17, ]
+  9.3:sw -> 7.0 [lhead = cluster_7, ]
+  9.3:se -> 8.0 [lhead = cluster_8, ]
+  9.4:sw -> 19.0 [lhead = cluster_19, ]
+  9.4:se -> 21.0 [lhead = cluster_21, ]
+  4.0:sw -> 0.0 [lhead = cluster_0, ]
+  4.0:se -> 1.0 [lhead = cluster_1, ]
   7.0:sw -> 4.0 [lhead = cluster_4, ]
   7.0:se -> 5.0 [lhead = cluster_5, ]
   10.0 -> 9.0 [lhead = cluster_9, ]
-  6.0:sw -> 2.0 [lhead = cluster_2, ]
-  6.0:se -> 3.0 [lhead = cluster_3, ]
-  9.0:sw -> 7.0 [lhead = cluster_7, ]
-  9.0:se -> 8.0 [lhead = cluster_8, ]
+  21.0:sw -> 4.0 [lhead = cluster_4, ]
+  21.0:se -> 6.0 [lhead = cluster_6, ]
+  13.0:sw -> 4.0 [lhead = cluster_4, ]
+  13.0:se -> 8.0 [lhead = cluster_8, ]
+  13.1:sw -> 21.0 [lhead = cluster_21, ]
+  13.1:se -> 5.0 [lhead = cluster_5, ]
+  13.2:sw -> 7.0 [lhead = cluster_7, ]
+  13.2:se -> 6.0 [lhead = cluster_6, ]
   5.0:sw -> 1.0 [lhead = cluster_1, ]
   5.0:se -> 2.0 [lhead = cluster_2, ]
   8.0:sw -> 5.0 [lhead = cluster_5, ]
   8.0:se -> 6.0 [lhead = cluster_6, ]
-  4.0:sw -> 0.0 [lhead = cluster_0, ]
-  4.0:se -> 1.0 [lhead = cluster_1, ]
+  19.0:sw -> 5.0 [lhead = cluster_5, ]
+  19.0:se -> 5.0 [lhead = cluster_5, ]
 }
