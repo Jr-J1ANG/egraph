@@ -106,3 +106,13 @@ pub fn saturate_dag(input: &str) -> Result<SaturatedEGraph, String> {
     let (egraph, outputs_root) = program.to_egraph()?;
     Ok(saturate(egraph, outputs_root, input_kind))
 }
+pub fn saturate_dag_local(input: &str, local_scope: Vec<Id>) -> Result<SaturatedEGraph, String> {
+    let program = ProgramDag::parse(input)?;
+    let input_kind = InputKind::Dag {
+        node_count: program.node_count(),
+        output_count: program.output_count(),
+    };
+
+    let (egraph, outputs_root) = program.to_egraph()?;
+    Ok(saturate_local(egraph, outputs_root, input_kind, local_scope))
+}
