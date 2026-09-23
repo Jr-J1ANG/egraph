@@ -55,7 +55,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\nFinal EGraph:");
     println!("{:#?}", saturated.egraph);
 
-    let saturated = saturate_dag(program）
+    let saturated = saturate_dag(program)
     .map_err(|error| std::io::Error::other(
         format!("Local E-graph saturation failed: {error}")
     ))?;
