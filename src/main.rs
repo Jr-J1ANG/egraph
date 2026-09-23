@@ -1,5 +1,7 @@
 use egraph_builder::{saturate_dag, saturate_dag_local};
 use egg::Id;
+use std::fs::File;
+use std::io::Write;
 
 mod cost;
 mod dag;
@@ -52,6 +54,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("E-classes : {eclass_count}");
     println!("E-nodes   : {enode_count}");
 
+    let mut file = File::create("local_saturation.dot")?;
+    write!(file, "{}", saturated.egraph.dot())?;
+
+    println!("EGraph DOT written to local_saturation.dot");
+
     let saturated = saturate_dag(program)
     .map_err(|error| std::io::Error::other(
         format!("Local E-graph saturation failed: {error}")
@@ -62,6 +69,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("E-classes : {eclass_count}");
     println!("E-nodes   : {enode_count}");
+
+    let mut file = File::create("saturation.dot")?;
+    write!(file, "{}", saturated.egraph.dot())?;
+
+    println!("EGraph DOT written to saturation.dot");
 
     Ok(())
 }
