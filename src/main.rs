@@ -18,10 +18,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     n0 = a
     n1 = b
     n2 = c
-    n3 = a + b
-    n4 = n3 + c
-    n5 = b + c
-    n6 = a + n5
+    n3 = n0 + n1
+    n4 = n3 + n2
+    n5 = n1 * n2
+    n6 = n0 + n5
     n7 = n4 * n6
     
     outputs = n7
