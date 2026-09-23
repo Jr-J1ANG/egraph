@@ -34,8 +34,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let local_scope = vec![
         Id::from(3),
         Id::from(4),
-        Id::from(5),
-        Id::from(6),
     ];
 
     println!("Input DAG:");
@@ -54,12 +52,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("E-classes : {eclass_count}");
     println!("E-nodes   : {enode_count}");
 
-    let mut file = File::create("local_saturation.dot")?;
+    let mut file = File::create("saturation1.dot")?;
     write!(file, "{}", saturated.egraph.dot())?;
 
-    println!("EGraph DOT written to local_saturation.dot");
+    println!("EGraph DOT written to saturation1.dot");
 
-    let saturated = saturate_dag(program)
+
+    let local_scope = vec![
+        Id::from(3),
+        Id::from(4),
+        Id::from(5),
+        Id::from(6),
+    ];
+    let saturated = saturate_dag_local(program, local_scope)
     .map_err(|error| std::io::Error::other(
         format!("Local E-graph saturation failed: {error}")
     ))?;
@@ -70,10 +75,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("E-classes : {eclass_count}");
     println!("E-nodes   : {enode_count}");
 
-    let mut file = File::create("saturation.dot")?;
+    let mut file = File::create("saturation2.dot")?;
     write!(file, "{}", saturated.egraph.dot())?;
 
-    println!("EGraph DOT written to saturation.dot");
+    println!("EGraph DOT written to saturation2.dot");
 
     Ok(())
 }
