@@ -54,6 +54,27 @@ fn saturate(egraph: EGraph<FheLang, ()>, root_hint: Id, input: InputKind) -> Sat
     }
 }
 
+fn saturate_local(egraph: EGraph<FheLang, ()>, root_hint: Id, input: InputKind, local_scope: Vec<Id>) -> SaturatedEGraph {
+    let runner = RunnerLocal::default()
+        .with_egraph(egraph)
+        .with_iter_limit(ITER_LIMIT)
+        .with_node_limit(NODE_LIMIT)
+        .with_time_limit(Duration::from_secs(TIME_LIMIT_SECS))
+        .with_local_scope(local_scope)
+        .run(&rules());
+
+    // Saturation may merge the original root into another e-class.
+    let root = runner.egraph.find(root_hint);
+
+    SaturatedEGraph {
+        egraph: runner.egraph,
+        root,
+        input,
+        iterations: runner.iterations.len(),
+        stop_reason: format!("{:?}", runner.stop_reason),
+    }
+}
+
 /// Parse a single-output S-expression, add a virtual `outputs(...)` root,
 /// then run equality saturation exactly once.
 pub fn saturate_formula(input: &str) -> Result<SaturatedEGraph, String> {
@@ -85,4 +106,3 @@ pub fn saturate_dag(input: &str) -> Result<SaturatedEGraph, String> {
     let (egraph, outputs_root) = program.to_egraph()?;
     Ok(saturate(egraph, outputs_root, input_kind))
 }
-
