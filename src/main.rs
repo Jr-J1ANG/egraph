@@ -79,14 +79,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .map_err(|error| std::io::Error::other(
             format!("Local E-graph saturation failed: {error}")
         ))?;
-    let eclass_count = saturated.egraph.number_of_classes();
-    let enode_count = saturated.egraph.total_size();
+    let eclass_count = saturated.number_of_classes();
+    let enode_count = saturated.total_size();
 
     println!("E-classes : {eclass_count}");
     println!("E-nodes   : {enode_count}");
 
     let mut file = File::create("saturation2.dot")?;
-    write!(file, "{}", saturated.egraph.dot())?;
+    write!(file, "{}", saturated.dot())?;
 
     println!("EGraph DOT written to saturation2.dot");
     
