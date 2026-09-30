@@ -75,7 +75,7 @@ fn saturate_local(egraph: EGraph<FheLang, ()>, root_hint: Id, input: InputKind, 
     }
 }
 
-pub fn saturate_egraph_local(egraph: EGraph<FheLang, ()>, local_scope: Vec<Id>) -> SaturatedEGraph {
+pub fn saturate_egraph_local(egraph: EGraph<FheLang, ()>, local_scope: Vec<Id>) -> EGraph<FheLang, ()> {
     let runner = RunnerLocal::default()
         .with_egraph(egraph)
         .with_iter_limit(ITER_LIMIT)
@@ -84,16 +84,7 @@ pub fn saturate_egraph_local(egraph: EGraph<FheLang, ()>, local_scope: Vec<Id>) 
         .with_local_scope(local_scope)
         .run(&rules());
 
-    // nonsense
-    let root = Id::from(6);
-
-    SaturatedEGraph {
-        egraph: runner.egraph,
-        root,
-        input,
-        iterations: runner.iterations.len(),
-        stop_reason: format!("{:?}", runner.stop_reason),
-    }
+    runner.egraph
 }
 
 /// Parse a single-output S-expression, add a virtual `outputs(...)` root,
