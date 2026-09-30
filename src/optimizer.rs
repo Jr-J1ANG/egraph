@@ -4,7 +4,7 @@ use crate::egraph_builder::SaturatedEGraph;
 use crate::lang::FheLang;
 use crate::md_mc_extractor::MdMcExtractor;
 
-use egg::{EGraph, Extractor, LpExtractor, RecExpr,prune};
+use egg::{EGraph, Extractor, LpExtractor, RecExpr, prune, Id};
 use good_lp::coin_cbc;
 
 /// Keep the old public path available for printers and other callers.
@@ -78,19 +78,19 @@ pub fn extract_md(saturated: &SaturatedEGraph) -> MdOptimizationResult {
     }
 }
 
-pub fn extract_md_prune(saturated: &SaturatedEGraph) -> EGraph<FheLang, ()> {
+pub fn extract_md_prune(saturated: &SaturatedEGraph, local_scope: Vec<Id>, unparticipated: Vec<Id>) -> (EGraph<L, N>, Id, Vec<Id>) {
     let extractor = Extractor::new(&saturated.egraph, MinMdTreeCost);
     //let (md_cost, best) = extractor.find_best(saturated.root);
     let (md_cost, best, info) = extractor.find_best_with_info(saturated.root);
 
-    let pruned = prune(&saturated.egraph, &info);
+    let (pruned, root, unparticipated) = prune(&saturated.egraph, &info, &local_scope, &unparticipated);
     let dag = Dag::from_recexpr(&best);
     let dag_stats = dag.stats();
     println!("=== Pruned EGraph ===");
     println!("EClass count: {}", pruned.number_of_classes());
     println!("ENode count: {}", pruned.total_number_of_nodes());
     println!("Hashcons size: {}", pruned.total_size());
-    pruned
+    (pruned, root, unparticipated)
 }
 
 /// Maximum time given specifically to the ILP solve.
