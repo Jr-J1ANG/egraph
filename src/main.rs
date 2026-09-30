@@ -35,6 +35,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Id::from(1),
         Id::from(2),
         Id::from(4),
+        Id::from(5),
     ];
 
     println!("Input DAG:");
