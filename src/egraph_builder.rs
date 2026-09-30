@@ -54,7 +54,7 @@ fn saturate(egraph: EGraph<FheLang, ()>, root_hint: Id, input: InputKind) -> Sat
     }
 }
 
-fn saturate_local(egraph: EGraph<FheLang, ()>, root_hint: Id, input: InputKind, local_scope: Vec<Id>) -> SaturatedEGraph {
+pub fn saturate_local(egraph: EGraph<FheLang, ()>, root_hint: Id, input: InputKind, local_scope: Vec<Id>) -> SaturatedEGraph {
     let runner = RunnerLocal::default()
         .with_egraph(egraph)
         .with_iter_limit(ITER_LIMIT)
