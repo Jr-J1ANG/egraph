@@ -4,7 +4,7 @@ use crate::egraph_builder::SaturatedEGraph;
 use crate::lang::FheLang;
 use crate::md_mc_extractor::MdMcExtractor;
 
-use egg::{Extractor, LpExtractor, RecExpr,prune};
+use egg::{EGraph, Extractor, LpExtractor, RecExpr,prune};
 use good_lp::coin_cbc;
 
 /// Keep the old public path available for printers and other callers.
