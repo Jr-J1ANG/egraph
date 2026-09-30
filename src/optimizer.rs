@@ -78,6 +78,18 @@ pub fn extract_md(saturated: &SaturatedEGraph) -> MdOptimizationResult {
     }
 }
 
+pub fn extract_md_prune(saturated: &SaturatedEGraph) -> pruned {
+    let extractor = Extractor::new(&saturated.egraph, MinMdTreeCost);
+    //let (md_cost, best) = extractor.find_best(saturated.root);
+    let (md_cost, best, info) = extractor.find_best_with_info(saturated.root);
+
+    let pruned = prune(&saturated, &info);
+    let dag = Dag::from_recexpr(&best);
+    let dag_stats = dag.stats();
+
+    pruned
+}
+
 /// Maximum time given specifically to the ILP solve.
 ///
 /// This is independent of the equality-saturation time limit.
