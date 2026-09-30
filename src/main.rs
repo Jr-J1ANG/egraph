@@ -33,9 +33,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Temporary local scope for testing RunnerLocal.
     // These will later be generated from the raw EGraph.
     let local_scope = vec![
-        Id::from(0),
-        Id::from(1),
-        Id::from(2),
+        Id::from(6),
+        Id::from(7),
+        Id::from(8),
     ];
 
     println!("Input DAG:");
