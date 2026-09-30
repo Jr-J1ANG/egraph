@@ -1,4 +1,4 @@
-use egraph_builder::{saturate_dag, saturate_dag_local};
+use egraph_builder::{saturate_dag, saturate_dag_local, saturate_local};
 use optimizer::extract_md_prune;
 use egg::Id;
 use std::fs::File;
@@ -54,15 +54,41 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let pruned = extract_md_prune(&saturated);
 
-    let mut file = File::create("saturation.dot")?;
+    let mut file = File::create("saturation1.dot")?;
     write!(file, "{}", saturated.egraph.dot())?;
 
     println!("EGraph DOT written to saturation1.dot");
 
-    let mut file = File::create("pruning.dot")?;
+    let mut file = File::create("pruning1.dot")?;
     write!(file, "{}", pruned.dot())?;
 
     println!("EGraph DOT written to pruning.dot");
+
+    let local_scope = vec![
+        Id::from(3),
+        Id::from(5),
+        Id::from(6),
+    ];
+
+    println!("Input DAG:");
+    println!("{program}");
+
+    println!("Local scope: {:?}", local_scope);
+
+    let saturated = saturate_local(pruned, local_scope)
+        .map_err(|error| std::io::Error::other(
+            format!("Local E-graph saturation failed: {error}")
+        ))?;
+    let eclass_count = saturated.egraph.number_of_classes();
+    let enode_count = saturated.egraph.total_size();
+
+    println!("E-classes : {eclass_count}");
+    println!("E-nodes   : {enode_count}");
+
+    let mut file = File::create("saturation2.dot")?;
+    write!(file, "{}", saturated.egraph.dot())?;
+
+    println!("EGraph DOT written to saturation2.dot");
     
     Ok(())
 }
