@@ -56,17 +56,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("E-classes : {eclass_count}");
     println!("E-nodes   : {enode_count}");
 
-    let pruned = extract_md_prune(&saturated);
-
     let mut file = File::create("saturation1.dot")?;
     write!(file, "{}", saturated.egraph.dot())?;
 
     println!("EGraph DOT written to saturation1.dot");
 
+    let pruned = extract_md_prune(&saturated);
+
     let mut file = File::create("pruning1.dot")?;
     write!(file, "{}", pruned.dot())?;
 
-    println!("EGraph DOT written to pruning.dot");
+    println!("EGraph DOT written to pruning1.dot");
 
     let local_scope = vec![
         Id::from(3),
@@ -91,6 +91,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     write!(file, "{}", saturated.dot())?;
 
     println!("EGraph DOT written to saturation2.dot");
+
+    let pruned = extract_md_prune(&saturated);
+
+    let mut file = File::create("pruning2.dot")?;
+    write!(file, "{}", pruned.dot())?;
+
+    println!("EGraph DOT written to pruning2.dot");
     
     Ok(())
 }
