@@ -78,7 +78,7 @@ pub fn extract_md(saturated: &SaturatedEGraph) -> MdOptimizationResult {
     }
 }
 
-pub fn extract_md_prune(saturated: &SaturatedEGraph, local_scope: Vec<Id>, unparticipated: Vec<Id>) -> (EGraph<L, N>, Id, Vec<Id>) {
+pub fn extract_md_prune(saturated: &SaturatedEGraph, local_scope: Vec<Id>, unparticipated: Vec<Id>) -> (EGraph<FheLang, ()>, Id, Vec<Id>) {
     let extractor = Extractor::new(&saturated.egraph, MinMdTreeCost);
     //let (md_cost, best) = extractor.find_best(saturated.root);
     let (md_cost, best, info) = extractor.find_best_with_info(saturated.root);
