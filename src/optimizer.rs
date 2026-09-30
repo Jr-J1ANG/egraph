@@ -4,7 +4,7 @@ use crate::egraph_builder::SaturatedEGraph;
 use crate::lang::FheLang;
 use crate::md_mc_extractor::MdMcExtractor;
 
-use egg::{Extractor, LpExtractor, RecExpr};
+use egg::{Extractor, LpExtractor, RecExpr,prune};
 use good_lp::coin_cbc;
 
 /// Keep the old public path available for printers and other callers.
@@ -61,8 +61,9 @@ pub struct MdMcOptimizationResult {
 /// e-graph. This does not parse input, construct an e-graph, or run rewrites.
 pub fn extract_md(saturated: &SaturatedEGraph) -> MdOptimizationResult {
     let extractor = Extractor::new(&saturated.egraph, MinMdTreeCost);
-    let (md_cost, best) = extractor.find_best(saturated.root);
-
+    //let (md_cost, best) = extractor.find_best(saturated.root);
+    let (md_cost, best, info) = extractor.find_best_with_info(saturated.root);
+    
     let dag = Dag::from_recexpr(&best);
     let dag_stats = dag.stats();
 
