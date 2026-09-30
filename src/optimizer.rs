@@ -83,7 +83,7 @@ pub fn extract_md_prune(saturated: &SaturatedEGraph) -> EGraph<FheLang, ()> {
     //let (md_cost, best) = extractor.find_best(saturated.root);
     let (md_cost, best, info) = extractor.find_best_with_info(saturated.root);
 
-    let pruned = prune(&saturated, &info);
+    let pruned = prune(&saturated.egraph, &info);
     let dag = Dag::from_recexpr(&best);
     let dag_stats = dag.stats();
     println!("=== Pruned EGraph ===");
