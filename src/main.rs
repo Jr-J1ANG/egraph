@@ -74,8 +74,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("EGraph DOT written to saturation1.dot");
 
     let (pruned, root, unparticipated) = extract_md_prune(&saturated, local_scope, unparticipated);
-    println!("root : {root}");
-    println!("unparticipated : {unparticipated}");
+    println!("{:?}", unparticipated);
 
     let mut file = File::create("pruning.dot")?;
     write!(file, "{}", pruned.dot())?;
