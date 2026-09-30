@@ -75,10 +75,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("Local scope: {:?}", local_scope);
 
-    let saturated = saturate_egraph_local(pruned, local_scope)
-        .map_err(|error| std::io::Error::other(
-            format!("Local E-graph saturation failed: {error}")
-        ))?;
+    let saturated = saturate_egraph_local(pruned, local_scope);
     let eclass_count = saturated.number_of_classes();
     let enode_count = saturated.total_size();
 
