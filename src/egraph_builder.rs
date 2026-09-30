@@ -85,7 +85,7 @@ pub fn saturate_egraph_local(egraph: EGraph<FheLang, ()>, local_scope: Vec<Id>) 
         .run(&rules());
 
     // nonsense
-    let root = Id::from(6),
+    let root = Id::from(6);
 
     SaturatedEGraph {
         egraph: runner.egraph,
