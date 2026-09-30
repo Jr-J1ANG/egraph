@@ -1,4 +1,4 @@
-use egraph_builder::{saturate_dag, saturate_dag_local, saturate_local};
+use egraph_builder::{saturate_dag, saturate_dag_local, saturate_egraph_local};
 use optimizer::extract_md_prune;
 use egg::Id;
 use std::fs::File;
