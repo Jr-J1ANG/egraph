@@ -25,9 +25,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     n4 = n0 + n1
     n5 = n4 * n2
     n6 = n5 * n3
-    n7 = e
-    n8 = n6 * n7
-    outputs = n8
+    outputs = n6
     "#;
 
     // Temporary local scope for testing RunnerLocal.
@@ -63,16 +61,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let pruned = extract_md_prune(&saturated);
 
-    let mut file = File::create("pruning1.dot")?;
+    let mut file = File::create("pruning.dot")?;
     write!(file, "{}", pruned.dot())?;
 
-    println!("EGraph DOT written to pruning1.dot");
+    println!("EGraph DOT written to pruning.dot");
 
     let local_scope = vec![
         Id::from(3),
         Id::from(6),
-        Id::from(7),
-        Id::from(8),
     ];
 
     println!("Input DAG:");
@@ -89,15 +85,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut file = File::create("saturation2.dot")?;
     write!(file, "{}", saturated.dot())?;
-
-    println!("EGraph DOT written to saturation2.dot");
-
-    let pruned = extract_md_prune(&saturated);
-
-    let mut file = File::create("pruning2.dot")?;
-    write!(file, "{}", pruned.dot())?;
-
-    println!("EGraph DOT written to pruning2.dot");
     
     Ok(())
 }
