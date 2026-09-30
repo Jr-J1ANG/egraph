@@ -57,7 +57,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("Local scope: {:?}", local_scope);
 
-    let saturated = saturate_dag_local(program, local_scope)
+    let saturated = saturate_dag_local(program, local_scope.clone())
         .map_err(|error| std::io::Error::other(
             format!("Local E-graph saturation failed: {error}")
         ))?;
@@ -73,7 +73,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("EGraph DOT written to saturation1.dot");
 
-    let (pruned, root, unparticipated) = extract_md_prune(&saturated, local_scope, unparticipated);
+    let (pruned, root, unparticipated) = extract_md_prune(&saturated, local_scope.clone(), unparticipated.clone());
     println!("{:?}", unparticipated);
 
     let mut file = File::create("pruning.dot")?;
