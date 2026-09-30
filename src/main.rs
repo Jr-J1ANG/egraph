@@ -58,7 +58,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("EGraph DOT written to saturation1.dot");
 
     let mut file = File::create("pruning.dot")?;
-    write!(file, "{}", pruned.egraph.dot())?;
+    write!(file, "{}", pruned.dot())?;
 
     println!("EGraph DOT written to pruning.dot");
     
