@@ -44,17 +44,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             format!("Local E-graph saturation failed: {error}")
         ))?;
     
-    let pruned = extract_md_prune(&saturated);
     let eclass_count = saturated.egraph.number_of_classes();
     let enode_count = saturated.egraph.total_size();
 
     println!("E-classes : {eclass_count}");
     println!("E-nodes   : {enode_count}");
 
-    let mut file = File::create("saturation1.dot")?;
+    let pruned = extract_md_prune(&saturated);
+
+    let mut file = File::create("saturation.dot")?;
     write!(file, "{}", saturated.egraph.dot())?;
 
     println!("EGraph DOT written to saturation1.dot");
+
+    let mut file = File::create("pruning.dot")?;
+    write!(file, "{}", pruned.egraph.dot())?;
+
+    println!("EGraph DOT written to pruning.dot");
     
     Ok(())
 }
