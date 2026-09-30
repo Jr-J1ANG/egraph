@@ -58,14 +58,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     write!(file, "{}", saturated.egraph.dot())?;
 
     println!("EGraph DOT written to saturation1.dot");
-/**
+
     let pruned = extract_md_prune(&saturated);
 
     let mut file = File::create("pruning.dot")?;
     write!(file, "{}", pruned.dot())?;
 
     println!("EGraph DOT written to pruning.dot");
-
+/**
     let local_scope = vec![
         Id::from(3),
         Id::from(6),
