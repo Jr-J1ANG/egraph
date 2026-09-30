@@ -5,35 +5,35 @@ digraph egraph {
     style=dotted
     9.0[label = "outputs"]
   }
-  subgraph cluster_0 {
+  subgraph cluster_7 {
     style=dotted
-    0.0[label = "a"]
+    7.0[label = "*"]
   }
   subgraph cluster_3 {
     style=dotted
     3.0[label = "+"]
   }
+  subgraph cluster_0 {
+    style=dotted
+    0.0[label = "a"]
+  }
   subgraph cluster_1 {
     style=dotted
     1.0[label = "b"]
   }
-  subgraph cluster_20 {
-    style=dotted
-    20.0[label = "+"]
-  }
   subgraph cluster_8 {
     style=dotted
-    8.0[label = "*"]
+    8.0[label = "+"]
   }
   subgraph cluster_2 {
     style=dotted
     2.0[label = "c"]
   }
   9.0 -> 8.0 [lhead = cluster_8, ]
+  7.0:sw -> 2.0 [lhead = cluster_2, ]
+  7.0:se -> 3.0 [lhead = cluster_3, ]
   3.0:sw -> 0.0 [lhead = cluster_0, ]
   3.0:se -> 1.0 [lhead = cluster_1, ]
-  20.0:sw -> 2.0 [lhead = cluster_2, ]
-  20.0:se -> 2.0 [lhead = cluster_2, ]
-  8.0:sw -> 3.0 [lhead = cluster_3, ]
-  8.0:se -> 20.0 [lhead = cluster_20, ]
+  8.0:sw -> 7.0 [lhead = cluster_7, ]
+  8.0:se -> 7.0 [lhead = cluster_7, ]
 }
