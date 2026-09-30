@@ -54,7 +54,7 @@ fn saturate(egraph: EGraph<FheLang, ()>, root_hint: Id, input: InputKind) -> Sat
     }
 }
 
-pub fn saturate_local(egraph: EGraph<FheLang, ()>, root_hint: Id, input: InputKind, local_scope: Vec<Id>) -> SaturatedEGraph {
+fn saturate_local(egraph: EGraph<FheLang, ()>, root_hint: Id, input: InputKind, local_scope: Vec<Id>) -> SaturatedEGraph {
     let runner = RunnerLocal::default()
         .with_egraph(egraph)
         .with_iter_limit(ITER_LIMIT)
@@ -65,6 +65,27 @@ pub fn saturate_local(egraph: EGraph<FheLang, ()>, root_hint: Id, input: InputKi
 
     // Saturation may merge the original root into another e-class.
     let root = runner.egraph.find(root_hint);
+
+    SaturatedEGraph {
+        egraph: runner.egraph,
+        root,
+        input,
+        iterations: runner.iterations.len(),
+        stop_reason: format!("{:?}", runner.stop_reason),
+    }
+}
+
+pub fn saturate_egraph_local(egraph: EGraph<FheLang, ()>, local_scope: Vec<Id>) -> SaturatedEGraph {
+    let runner = RunnerLocal::default()
+        .with_egraph(egraph)
+        .with_iter_limit(ITER_LIMIT)
+        .with_node_limit(NODE_LIMIT)
+        .with_time_limit(Duration::from_secs(TIME_LIMIT_SECS))
+        .with_local_scope(local_scope)
+        .run(&rules());
+
+    // nonsense
+    let root = 0;
 
     SaturatedEGraph {
         egraph: runner.egraph,
