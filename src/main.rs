@@ -21,11 +21,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     n0 = a
     n1 = b
     n2 = c
-    n3 = d
-    n4 = n0 + n1
-    n5 = n4 * n2
-    n6 = n5 * n3
-    outputs = n6
+    n3 = n0 + n1
+    n4 = n0 * n2
+    n5 = n1 * n2
+    n6 = n2 * n3
+    n7 = n4 + n5
+    n8 = n6 + n7
+    outputs = n8
     "#;
 
     // Temporary local scope for testing RunnerLocal.
@@ -34,8 +36,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Id::from(0),
         Id::from(1),
         Id::from(2),
-        Id::from(4),
-        Id::from(5),
     ];
 
     println!("Input DAG:");
@@ -58,7 +58,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     write!(file, "{}", saturated.egraph.dot())?;
 
     println!("EGraph DOT written to saturation1.dot");
-
+/**
     let pruned = extract_md_prune(&saturated);
 
     let mut file = File::create("pruning.dot")?;
@@ -85,7 +85,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut file = File::create("saturation2.dot")?;
     write!(file, "{}", saturated.dot())?;
-    
+**/
     Ok(())
 }
 
