@@ -25,7 +25,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     n4 = n0 + n1
     n5 = n4 * n2
     n6 = n5 * n3
-    outputs = n6
+    n7 = e
+    n8 = n6 * n7
+    outputs = n8
     "#;
 
     // Temporary local scope for testing RunnerLocal.
@@ -69,6 +71,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let local_scope = vec![
         Id::from(3),
         Id::from(6),
+        Id::from(7),
+        Id::from(8),
     ];
 
     println!("Input DAG:");
