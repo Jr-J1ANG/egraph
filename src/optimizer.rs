@@ -78,7 +78,7 @@ pub fn extract_md(saturated: &SaturatedEGraph) -> MdOptimizationResult {
     }
 }
 
-pub fn extract_md_prune(saturated: &SaturatedEGraph) -> pruned {
+pub fn extract_md_prune(saturated: &SaturatedEGraph) -> EGraph<FheLang, ()> {
     let extractor = Extractor::new(&saturated.egraph, MinMdTreeCost);
     //let (md_cost, best) = extractor.find_best(saturated.root);
     let (md_cost, best, info) = extractor.find_best_with_info(saturated.root);
@@ -86,7 +86,10 @@ pub fn extract_md_prune(saturated: &SaturatedEGraph) -> pruned {
     let pruned = prune(&saturated, &info);
     let dag = Dag::from_recexpr(&best);
     let dag_stats = dag.stats();
-
+    println!("=== Pruned EGraph ===");
+    println!("EClass count: {}", pruned.number_of_classes());
+    println!("ENode count: {}", pruned.total_number_of_nodes());
+    println!("Hashcons size: {}", pruned.total_size());
     pruned
 }
 
