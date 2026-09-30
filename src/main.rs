@@ -68,7 +68,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let local_scope = vec![
         Id::from(3),
-        Id::from(5),
         Id::from(6),
     ];
 
