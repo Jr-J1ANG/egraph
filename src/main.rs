@@ -1,5 +1,5 @@
 use egraph_builder::{saturate_dag, saturate_dag_local, saturate_egraph_local};
-use optimizer::extract_md_prune;
+use optimizer::{extract_global_mc_prune, extract_md_prune};
 use egg::Id;
 use std::fs::File;
 use std::io::Write;
@@ -33,7 +33,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Temporary local scope for testing RunnerLocal.
     // These will later be generated from the raw EGraph.
 
-    let unparticipated = vec![
+    let initial_unparticipated = vec![
         Id::from(0),
         Id::from(1),
         Id::from(2),
@@ -73,13 +73,35 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("EGraph DOT written to saturation1.dot");
 
-    let (pruned, root, unparticipated) = extract_md_prune(&saturated, local_scope.clone(), unparticipated.clone());
-    println!("{:?}", unparticipated);
+    // Test MD-oriented extraction followed by pruning.
+    let (md_pruned, md_root, md_unparticipated) = extract_md_prune(
+        &saturated,
+        local_scope.clone(),
+        initial_unparticipated.clone(),
+    );
+    println!("MD-prune root: {}", md_root);
+    println!("MD-prune unparticipated: {:?}", md_unparticipated);
 
     let mut file = File::create("pruning.dot")?;
-    write!(file, "{}", pruned.dot())?;
-
+    write!(file, "{}", md_pruned.dot())?;
     println!("EGraph DOT written to pruning.dot");
+
+    // Independently test global MC extraction + pruning from the same saturated
+    // EGraph and the same pre-prune history/scope IDs.
+    let (mc_pruned, mc_root, mc_unparticipated) = extract_global_mc_prune(
+        &saturated,
+        local_scope.clone(),
+        initial_unparticipated.clone(),
+    );
+    println!("Global-MC-prune root: {}", mc_root);
+    println!(
+        "Global-MC-prune unparticipated: {:?}",
+        mc_unparticipated
+    );
+
+    let mut file = File::create("pruning_global_mc.dot")?;
+    write!(file, "{}", mc_pruned.dot())?;
+    println!("EGraph DOT written to pruning_global_mc.dot");
 /**
     let local_scope = vec![
         Id::from(3),
