@@ -119,6 +119,40 @@ pub fn extract_global_mc(saturated: &SaturatedEGraph) -> GlobalMcOptimizationRes
     }
 }
 
+/// Run global MC extraction and then prune the saturated EGraph to the
+/// LP extractor's selected DAG, updating the local-scope participation history.
+///
+/// This mirrors `extract_md_prune`, but uses the global MC objective and the
+/// LP extractor's `solve_with_timeout_info` API to obtain the selected enodes
+/// required by `prune`.
+pub fn extract_global_mc_prune(
+    saturated: &SaturatedEGraph,
+    local_scope: Vec<Id>,
+    unparticipated: Vec<Id>,
+) -> (EGraph<FheLang, ()>, Id, Vec<Id>) {
+    let mut extractor = LpExtractor::new(&saturated.egraph, GlobalMcCost);
+    let (best, info) = extractor.solve_with_timeout_info(
+        saturated.root,
+        coin_cbc,
+        LP_EXTRACTION_TIMEOUT_SECS,
+    );
+    drop(extractor);
+
+    let (pruned, root, unparticipated) =
+        prune(&saturated.egraph, &info, &local_scope, &unparticipated);
+
+    let dag = Dag::from_recexpr(&best);
+    let dag_stats = dag.stats();
+    println!("=== Global MC Pruned EGraph ===");
+    println!("MC: {}", dag_stats.mc);
+    println!("MD: {}", dag_stats.md);
+    println!("EClass count: {}", pruned.number_of_classes());
+    println!("ENode count: {}", pruned.total_number_of_nodes());
+    println!("Hashcons size: {}", pruned.total_size());
+
+    (pruned, root, unparticipated)
+}
+
 ///minimise MC  subject to MD <= md_limit.
 /// No `MD_min` is used here. If the bound is impossible, the underlying MIP
 /// returns an error; the caller can therefore test infeasible limits directly.
