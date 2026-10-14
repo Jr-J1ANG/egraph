@@ -82,7 +82,7 @@ fn build_initial_local_state(
     let root = raw_egraph.find(raw_root);
 
     let mut unparticipated: Vec<Id> = raw_egraph
-        .classes
+        .classes()
         .keys()
         .copied()
         .map(|id| raw_egraph.find(id))
