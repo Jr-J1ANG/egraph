@@ -2,7 +2,7 @@ use egg::Id;
 use std::fs;
 use std::io::{self, Write};
 
-use egraph_builder::{saturate_dag_local, saturate_egraph_local};
+use egraph_builder::{saturate_egraph_local, InputKind, SaturatedEGraph};
 use optimizer::{extract_global_mc_prune, extract_md_prune};
 
 mod cost;
@@ -55,28 +55,60 @@ fn wrap_pruned_egraph(
     egraph: egg::EGraph<lang::FheLang, ()>,
     root: Id,
     node_count: usize,
-) -> egraph_builder::SaturatedEGraph {
-    egraph_builder::SaturatedEGraph {
+    output_count: usize,
+) -> SaturatedEGraph {
+    let root = egraph.find(root);
+    SaturatedEGraph {
         egraph,
         root,
-        input: egraph_builder::InputKind::Dag {
+        input: InputKind::Dag {
             node_count,
-            output_count: 1,
+            output_count,
         },
         iterations: 0,
-        stop_reason: "local saturation on pruned e-graph".to_string(),
+        stop_reason: "local saturation on current e-graph".to_string(),
     }
 }
 
-fn run_md(program: &str, node_count: usize) -> Result<(), Box<dyn std::error::Error>> {
-    println!("\n========== Local MD optimization ==========");
-    let mut unparticipated: Vec<Id> = (0..node_count).map(Id::from).collect();
-    let mut current_scope = choose_scope(&unparticipated, LOCAL_SCOPE_SIZE);
+/// Build a fresh raw EGraph and initialize the first local scope from its
+/// actual canonical e-class IDs. The virtual Outputs root is deliberately
+/// excluded from the set of arithmetic/input classes to be processed.
+fn build_initial_local_state(
+    parsed: &dag_parser::ProgramDag,
+) -> Result<(egraph_builder::SaturatedEGraph, Vec<Id>, Vec<Id>), Box<dyn std::error::Error>> {
+    let (raw_egraph, raw_root) = parsed
+        .to_egraph()
+        .map_err(|e| io::Error::other(format!("Failed to build raw EGraph: {e}")))?;
+    let root = raw_egraph.find(raw_root);
 
-    // The first local run constructs the original e-graph. Subsequent rounds
-    // continue from the previous round's pruned e-graph.
-    let mut saturated = saturate_dag_local(program, current_scope.clone())
-        .map_err(|e| io::Error::other(format!("Initial local saturation failed: {e}")))?;
+    let mut unparticipated: Vec<Id> = raw_egraph
+        .classes
+        .keys()
+        .copied()
+        .map(|id| raw_egraph.find(id))
+        .filter(|&id| id != root)
+        .collect();
+    unparticipated.sort_unstable();
+    unparticipated.dedup();
+
+    let current_scope = choose_scope(&unparticipated, LOCAL_SCOPE_SIZE);
+    let egraph = saturate_egraph_local(raw_egraph, current_scope.clone());
+    let saturated = wrap_pruned_egraph(
+        egraph,
+        root,
+        parsed.node_count(),
+        parsed.output_count(),
+    );
+
+    Ok((saturated, current_scope, unparticipated))
+}
+
+fn run_md(parsed: &dag_parser::ProgramDag) -> Result<(), Box<dyn std::error::Error>> {
+    println!("\n========== Local MD optimization ==========");
+    let (mut saturated, mut current_scope, mut unparticipated) =
+        build_initial_local_state(parsed)?;
+    let node_count = parsed.node_count();
+    let output_count = parsed.output_count();
 
     let mut round = 1usize;
     loop {
@@ -87,7 +119,7 @@ fn run_md(program: &str, node_count: usize) -> Result<(), Box<dyn std::error::Er
         // Report the selected DAG's global MD/MC after every MD round, not just
         // the e-graph size. Clone the pruned graph because the next round reuses it.
         let round_egraph = saturate_egraph_local(pruned.clone(), Vec::new());
-        let round_saturated = wrap_pruned_egraph(round_egraph, _root, node_count);
+        let round_saturated = wrap_pruned_egraph(round_egraph, _root, node_count, output_count);
         let round_result = optimizer::extract_md(&round_saturated);
         println!(
             "[MD] round {round}: scope={}, remaining={}, eclasses={}, enodes={}, MD={}, MC={}, MD^2*MC={}, nodes={}",
@@ -104,7 +136,7 @@ fn run_md(program: &str, node_count: usize) -> Result<(), Box<dyn std::error::Er
         if unparticipated.is_empty() {
             // Re-extract the final selected implementation for serialization.
             let final_egraph = saturate_egraph_local(pruned, Vec::new());
-            let final_saturated = wrap_pruned_egraph(final_egraph, _root, node_count);
+            let final_saturated = wrap_pruned_egraph(final_egraph, _root, node_count, output_count);
             let result = optimizer::extract_md(&final_saturated);
             println!(
                 "[MD] final: MD={}, MC={}, nodes={}",
@@ -116,19 +148,18 @@ fn run_md(program: &str, node_count: usize) -> Result<(), Box<dyn std::error::Er
 
         current_scope = choose_scope(&unparticipated, LOCAL_SCOPE_SIZE);
         let next_egraph = saturate_egraph_local(pruned, current_scope.clone());
-        saturated = wrap_pruned_egraph(next_egraph, _root, node_count);
+        saturated = wrap_pruned_egraph(next_egraph, _root, node_count, output_count);
         round += 1;
     }
     Ok(())
 }
 
-fn run_mc(program: &str, node_count: usize) -> Result<(), Box<dyn std::error::Error>> {
+fn run_mc(parsed: &dag_parser::ProgramDag) -> Result<(), Box<dyn std::error::Error>> {
     println!("\n========== Local MC optimization ==========");
-    let mut unparticipated: Vec<Id> = (0..node_count).map(Id::from).collect();
-    let mut current_scope = choose_scope(&unparticipated, LOCAL_SCOPE_SIZE);
-
-    let mut saturated = saturate_dag_local(program, current_scope.clone())
-        .map_err(|e| io::Error::other(format!("Initial local saturation failed: {e}")))?;
+    let (mut saturated, mut current_scope, mut unparticipated) =
+        build_initial_local_state(parsed)?;
+    let node_count = parsed.node_count();
+    let output_count = parsed.output_count();
 
     let mut round = 1usize;
     loop {
@@ -146,7 +177,7 @@ fn run_mc(program: &str, node_count: usize) -> Result<(), Box<dyn std::error::Er
 
         if unparticipated.is_empty() {
             let final_egraph = saturate_egraph_local(pruned, Vec::new());
-            let final_saturated = wrap_pruned_egraph(final_egraph, _root, node_count);
+            let final_saturated = wrap_pruned_egraph(final_egraph, _root, node_count, output_count);
             let result = optimizer::extract_global_mc(&final_saturated);
             println!(
                 "[MC] final: MD={}, MC={}, nodes={}",
@@ -158,7 +189,7 @@ fn run_mc(program: &str, node_count: usize) -> Result<(), Box<dyn std::error::Er
 
         current_scope = choose_scope(&unparticipated, LOCAL_SCOPE_SIZE);
         let next_egraph = saturate_egraph_local(pruned, current_scope.clone());
-        saturated = wrap_pruned_egraph(next_egraph, _root, node_count);
+        saturated = wrap_pruned_egraph(next_egraph, _root, node_count, output_count);
         round += 1;
     }
     Ok(())
@@ -188,8 +219,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // These are deliberately independent runs. MC starts again from dag.txt,
     // not from the MD-optimized output.
-    run_md(&program, node_count)?;
-    run_mc(&program, node_count)?;
+    run_md(&parsed)?;
+    run_mc(&parsed)?;
 
     println!("\nSaved optimized DAGs: dag_md.txt and dag_mc.txt");
     Ok(())
