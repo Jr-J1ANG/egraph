@@ -84,12 +84,21 @@ fn run_md(program: &str, node_count: usize) -> Result<(), Box<dyn std::error::Er
             extract_md_prune(&saturated, current_scope.clone(), unparticipated.clone());
         unparticipated = next_unparticipated;
 
+        // Report the selected DAG's global MD/MC after every MD round, not just
+        // the e-graph size. Clone the pruned graph because the next round reuses it.
+        let round_egraph = saturate_egraph_local(pruned.clone(), Vec::new());
+        let round_saturated = wrap_pruned_egraph(round_egraph, _root, node_count);
+        let round_result = optimizer::extract_md(&round_saturated);
         println!(
-            "[MD] round {round}: scope={}, remaining={}, eclasses={}, enodes={}",
+            "[MD] round {round}: scope={}, remaining={}, eclasses={}, enodes={}, MD={}, MC={}, MD^2*MC={}, nodes={}",
             current_scope.len(),
             unparticipated.len(),
             pruned.number_of_classes(),
-            pruned.total_size()
+            pruned.total_size(),
+            round_result.dag_stats.md,
+            round_result.dag_stats.mc,
+            round_result.dag_stats.md * round_result.dag_stats.md * round_result.dag_stats.mc,
+            round_result.dag_stats.total_nodes
         );
 
         if unparticipated.is_empty() {
@@ -164,6 +173,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Input DAG: {INPUT_DAG_PATH}");
     println!("Arithmetic/input nodes: {node_count}");
     println!("Local scope size: {LOCAL_SCOPE_SIZE}");
+
+    // Measure the original DAG as written, before any rewriting or extraction.
+    let original = evaluator::evaluate_dag_text(&program)
+        .map_err(|e| io::Error::other(format!("Failed to evaluate original DAG: {e}")))?;
+    println!(
+        "Original DAG stats: MD={}, MC={}, MD^2*MC={}, reachable_nodes={}",
+        original.stats.md,
+        original.stats.mc,
+        original.stats.fhe_cost,
+        original.stats.total_nodes
+    );
     println!("Original DAG:\n{program}");
 
     // These are deliberately independent runs. MC starts again from dag.txt,
