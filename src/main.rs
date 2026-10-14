@@ -19,7 +19,7 @@ mod rules;
 
 // Number of consecutive unparticipated nodes assigned to each local scope.
 // Change this constant to experiment with different group sizes.
-const LOCAL_SCOPE_SIZE: usize = 8;
+const LOCAL_SCOPE_SIZE: usize = 16;
 
 // dag.txt is read from the current working directory.
 const INPUT_DAG_PATH: &str = "dag.txt";
