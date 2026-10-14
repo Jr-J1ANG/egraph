@@ -83,11 +83,10 @@ fn build_initial_local_state(
 
     let mut unparticipated: Vec<Id> = raw_egraph
         .classes()
-        .keys()
-        .copied()
-        .map(|id| raw_egraph.find(id))
+        .map(|eclass| raw_egraph.find(eclass.id))
         .filter(|&id| id != root)
         .collect();
+    
     unparticipated.sort_unstable();
     unparticipated.dedup();
 
