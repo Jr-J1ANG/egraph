@@ -175,7 +175,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Local scope size: {LOCAL_SCOPE_SIZE}");
 
     // Measure the original DAG as written, before any rewriting or extraction.
-    let original = evaluator::evaluate_dag_text(&program)
+    let original = evaluator::evaluate_dag(&program)
         .map_err(|e| io::Error::other(format!("Failed to evaluate original DAG: {e}")))?;
     println!(
         "Original DAG stats: MD={}, MC={}, MD^2*MC={}, reachable_nodes={}",
