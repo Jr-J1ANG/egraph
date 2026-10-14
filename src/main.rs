@@ -220,12 +220,48 @@ fn wrap_pruned_egraph(
     }
 }
 
+/// Count multiplication e-classes reachable from the selected root.
+/// This is intended for a pruned EGraph, where each reachable e-class
+/// represents the selected implementation and sharing is counted once.
+fn count_pruned_mc(egraph: &EGraph<lang::FheLang, ()>, root: Id) -> usize {
+    let mut stack = vec![egraph.find(root)];
+    let mut seen = HashSet::new();
+    let mut mc = 0usize;
+
+    while let Some(id) = stack.pop() {
+        let id = egraph.find(id);
+        if !seen.insert(id) {
+            continue;
+        }
+
+        let class = &egraph[id];
+        let Some(node) = class.nodes.first() else {
+            continue;
+        };
+
+        if matches!(node, lang::FheLang::Mul(_)) {
+            mc += 1;
+        }
+        stack.extend(node.children().iter().copied());
+    }
+
+    mc
+}
+
 /// Build a fresh raw EGraph and initialize the first local scope from its
 /// actual canonical e-class IDs. The virtual Outputs root is deliberately
 /// excluded from the set of arithmetic/input classes to be processed.
 fn build_initial_local_state(
     parsed: &dag_parser::ProgramDag,
-) -> Result<(egraph_builder::SaturatedEGraph, Vec<Id>, Vec<Id>), Box<dyn std::error::Error>> {
+) -> Result<
+    (
+        egraph_builder::SaturatedEGraph,
+        Vec<Id>,
+        Vec<Id>,
+        egraph_builder::SaturatedEGraph,
+    ),
+    Box<dyn std::error::Error>,
+> {
     let (raw_egraph, raw_root) = parsed
         .to_egraph()
         .map_err(|e| io::Error::other(format!("Failed to build raw EGraph: {e}")))?;
@@ -239,6 +275,15 @@ fn build_initial_local_state(
     unparticipated.sort_unstable();
     unparticipated.dedup();
 
+    // Keep an untouched raw graph as the accepted state to roll back to if
+    // the first MC extraction is worse than the baseline.
+    let raw_state = wrap_pruned_egraph(
+        raw_egraph.clone(),
+        root,
+        parsed.node_count(),
+        parsed.output_count(),
+    );
+
     let current_scope = choose_scope(&raw_egraph, &unparticipated, root);
     let egraph = saturate_egraph_local(raw_egraph, current_scope.clone());
     let saturated = wrap_pruned_egraph(
@@ -248,12 +293,12 @@ fn build_initial_local_state(
         parsed.output_count(),
     );
 
-    Ok((saturated, current_scope, unparticipated))
+    Ok((saturated, current_scope, unparticipated, raw_state))
 }
 
 fn run_md(parsed: &dag_parser::ProgramDag) -> Result<(), Box<dyn std::error::Error>> {
     println!("\n========== Local MD optimization ==========");
-    let (mut saturated, mut current_scope, mut unparticipated) =
+    let (mut saturated, mut current_scope, mut unparticipated, _raw_state) =
         build_initial_local_state(parsed)?;
     let node_count = parsed.node_count();
     let output_count = parsed.output_count();
@@ -304,42 +349,114 @@ fn run_md(parsed: &dag_parser::ProgramDag) -> Result<(), Box<dyn std::error::Err
 
 fn run_mc(parsed: &dag_parser::ProgramDag) -> Result<(), Box<dyn std::error::Error>> {
     println!("\n========== Local MC optimization ==========");
-    let (mut saturated, mut current_scope, mut unparticipated) =
+    let (mut saturated, mut current_scope, mut unparticipated, mut accepted_state) =
         build_initial_local_state(parsed)?;
     let node_count = parsed.node_count();
     let output_count = parsed.output_count();
 
+    // Baseline is the MC of the untouched raw DAG representation.
+    let mut accepted_mc = count_pruned_mc(&accepted_state.egraph, accepted_state.root);
     let mut round = 1usize;
-    loop {
-        let (pruned, _root, next_unparticipated) =
-            extract_global_mc_prune(&saturated, current_scope.clone(), unparticipated.clone());
-        unparticipated = next_unparticipated;
 
+    loop {
         println!(
-            "[MC] round {round}: scope={}, remaining={}, eclasses={}, enodes={}",
+            "[MC] round {round}: trying scope={}, remaining_before={}, accepted_MC={}",
             current_scope.len(),
+            unparticipated.len(),
+            accepted_mc
+        );
+
+        let (pruned, pruned_root, next_unparticipated) =
+            extract_global_mc_prune(&saturated, current_scope.clone(), unparticipated.clone());
+        let candidate_mc = count_pruned_mc(&pruned, pruned_root);
+
+        if candidate_mc > accepted_mc {
+            println!(
+                "[MC] round {round}: REJECTED (MC {} -> {}); rolling back and skipping this scope",
+                accepted_mc, candidate_mc
+            );
+
+            // Roll back to the previous accepted pruned EGraph and its
+            // unparticipated set. Remove only IDs from this attempted scope
+            // that are actually present in that set; extra scope IDs are fine.
+            let failed_scope: HashSet<Id> = current_scope
+                .iter()
+                .map(|&id| accepted_state.egraph.find(id))
+                .collect();
+
+            unparticipated.retain(|&id| {
+                !failed_scope.contains(&accepted_state.egraph.find(id))
+            });
+
+            if unparticipated.is_empty() {
+                println!("[MC] no untried seeds remain; keeping the last accepted graph.");
+                break;
+            }
+
+            current_scope = choose_scope(
+                &accepted_state.egraph,
+                &unparticipated,
+                accepted_state.root,
+            );
+            let next_egraph =
+                saturate_egraph_local(accepted_state.egraph.clone(), current_scope.clone());
+            saturated = wrap_pruned_egraph(
+                next_egraph,
+                accepted_state.root,
+                node_count,
+                output_count,
+            );
+            round += 1;
+            continue;
+        }
+
+        // Accept this round, even if MC is unchanged. The pruning routine's
+        // participation bookkeeping becomes the accepted history.
+        accepted_mc = candidate_mc;
+        unparticipated = next_unparticipated;
+        println!(
+            "[MC] round {round}: accepted MC={}, remaining={}, eclasses={}, enodes={}",
+            accepted_mc,
             unparticipated.len(),
             pruned.number_of_classes(),
             pruned.total_size()
         );
 
+        accepted_state = wrap_pruned_egraph(
+            pruned,
+            pruned_root,
+            node_count,
+            output_count,
+        );
+
         if unparticipated.is_empty() {
-            let final_egraph = saturate_egraph_local(pruned, Vec::new());
-            let final_saturated = wrap_pruned_egraph(final_egraph, _root, node_count, output_count);
-            let result = optimizer::extract_global_mc(&final_saturated);
-            println!(
-                "[MC] final: MD={}, MC={}, nodes={}",
-                result.dag_stats.md, result.dag_stats.mc, result.dag_stats.total_nodes
-            );
-            write_dag_text("dag_mc.txt", &result.dag)?;
             break;
         }
 
-        current_scope = choose_scope(&pruned, &unparticipated, _root);
-        let next_egraph = saturate_egraph_local(pruned, current_scope.clone());
-        saturated = wrap_pruned_egraph(next_egraph, _root, node_count, output_count);
+        current_scope = choose_scope(
+            &accepted_state.egraph,
+            &unparticipated,
+            accepted_state.root,
+        );
+        let next_egraph =
+            saturate_egraph_local(accepted_state.egraph.clone(), current_scope.clone());
+        saturated = wrap_pruned_egraph(
+            next_egraph,
+            accepted_state.root,
+            node_count,
+            output_count,
+        );
         round += 1;
     }
+
+    // Final extraction is performed only on the last accepted graph, never on
+    // a rejected candidate.
+    let result = optimizer::extract_global_mc(&accepted_state);
+    println!(
+        "[MC] final accepted result: MD={}, MC={}, nodes={}",
+        result.dag_stats.md, result.dag_stats.mc, result.dag_stats.total_nodes
+    );
+    write_dag_text("dag_mc.txt", &result.dag)?;
     Ok(())
 }
 
